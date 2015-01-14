@@ -256,6 +256,8 @@ class YamlParser(object):
                     jobname, jobparams = next(iter(jobspec.items()))
                     if not isinstance(jobparams, dict):
                         jobparams = {}
+                    # Expand variables in job params
+                    jobparams = self.expandVariablesInDict(project, jobparams)
                 else:
                     jobname = jobspec
                     jobparams = {}
@@ -280,6 +282,8 @@ class YamlParser(object):
                         else:
                             group_jobname = group_jobspec
                             group_jobparams = {}
+                        # Expand variables in job params
+                        group_jobparams = self.expandVariablesInDict(project, group_jobparams)
                         job = self.getJob(group_jobname)
                         if job:
                             if group_jobname in seen:
@@ -322,6 +326,16 @@ class YamlParser(object):
                                   "specified".format(job['name']))
                 self.jobs.remove(job)
             seen.add(job['name'])
+
+    # Expand each value in dictToExpand for any variables defined in definitions
+    def expandVariablesInDict(self, definitions, dictToExpand):
+        params = copy.deepcopy(definitions)
+        expandedDict = {}
+        for (k, v) in dictToExpand.items():
+            expanded = deep_format(v, params)
+            logger.debug("Expanding job param %s = %s", v, expanded)
+            expandedDict[k] = expanded
+        return expandedDict
 
     def expandYamlForTemplateJob(self, project, template, jobs_filter=None):
         dimensions = []

@@ -26,3 +26,16 @@
     name: project-name
     jobs:
     - '{name}-tests'
+
+- job-group:
+    name: '{name}-variable-name'
+    jobs:
+    - '{name}-unit-tests':
+        mail-to: '{name}-developers@nowhere.net'
+    - '{name}-perf-tests':
+        mail-to: '{name}-projmanagers@nowhere.net'
+
+- project:
+    name: variable-project-name
+    jobs:
+    - '{name}-variable-name'
